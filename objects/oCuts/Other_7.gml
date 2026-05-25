@@ -1,0 +1,1 @@
+instance_destroy(); // Deleta o efeito da tela assim que a animação acabar

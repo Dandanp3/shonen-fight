@@ -26,14 +26,46 @@ attack_data = {
 };
 
 
-rr_phase         = 0;
-rr_timer         = 0;
-rr_impact_shaked = false;
+// No final do Create do oKaito, logo após o event_inherited();
 
-specials = [
-    
-];
+// 1. Variável de controle de timing
+special_spawned = false;
 
+// 2. Registra o Especial no Menu (Consome 2 barras, ativado com X / J)
+array_push(specials, {
+    name: "Cuts",       
+    cost: 2,                   
+    button: gp_face3,          
+    button_label: "X",         
+    key_alt: ord("J"),         
+    state: PLAYER_STATE.SPECIAL_START + 2 // Estado 102 exclusivo do Kaito
+});
 
-is_attacking      = false;
-is_attacking_held = false;
+// 3. Execução do Estado do Especial
+handle_specials = function() {
+    if (state == PLAYER_STATE.SPECIAL_START + 2) {
+        
+        // Inicialização: Roda apenas no primeiro frame do estado
+        if (sprite_index != KaitoScythe) {
+            sprite_index = KaitoScythe; 
+            image_index = 0;
+            image_speed = 1;
+            hspd = 0; 
+            vspd = 0;
+            special_spawned = false; // Garante que o gatilho está pronto para disparar
+        }
+        
+        // GATILHO DE TIMING: Logo após o frame 21 (ou seja, a partir do frame 22)
+        if (floor(image_index) > 21 && !special_spawned) {
+            special_spawned = true; // Trava o gatilho para spawnar apenas UM objeto
+            
+            // Spawna os cortes direto na posição atual do Aizen
+            if (instance_exists(opponent)) {
+                var _cuts = instance_create_layer(opponent.x, opponent.y, "Instances", oCuts);
+                _cuts.target = opponent;
+                _cuts.dmg = 40; // Defina o dano do especial do Kaito aqui
+                _cuts.facing = facing;
+            }
+        }
+    }
+};

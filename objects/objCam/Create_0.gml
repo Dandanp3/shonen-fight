@@ -1,5 +1,5 @@
-cam_width  = 640;
-cam_height = 480;
+cam_width  = 1280;
+cam_height = 720;
 
 var _scale = 2;
 window_set_size(cam_width * _scale, cam_height * _scale);
