@@ -1,51 +1,6 @@
 if (inv_timer > 0) {
     inv_timer--;
 }
-// CHECAGEM DE TIME STOP
-if (variable_global_exists("ts_active") && global.ts_active) {
-    if (id != global.za_warudo_caster) {
-        hspd = 0;
-        vspd = 0;
-        image_speed = 0;
-        exit; 
-    }
-} else {
-    // Garante que a variável existe no frame atual para evitar crash
-    if (!variable_instance_exists(id, "ts_damage_pool")) {
-        ts_damage_pool = 0;
-    }
-
-  //se houver dano acumulado na fila, aplica agora
-    if (ts_damage_pool > 0) {
-        
-        //zZera qualquer invencibilidade restante que congelou durante o ts
-        inv_timer = 0; 
-        
-        // Arredonda o dano acumulado 
-        var _dano_final = round(ts_damage_pool);
-        
-        // Define a direção do empurrão
-        var _punch_dir = -sign(global.za_warudo_caster.x - x);
-        if (_punch_dir == 0) _punch_dir = -global.za_warudo_caster.facing;
-        
-        // Aplica o dano com knockback e stun
-        if (variable_instance_exists(id, "take_damage")) {
-            take_damage(_dano_final, _punch_dir, 14, -8); 
-        } else {
-            hp = max(0, hp - _dano_final);
-            hspd = _punch_dir * 14;
-            vspd = -8;
-            state = PLAYER_STATE.HIT;
-            image_index = 0;
-        }
-        
-        // Spawna o efeito visual de impacto massivo
-        instance_create_layer(x, y - 20, "Instances", oDamage);
-        
-        // Zera a piscina de dano para a próxima vez
-        ts_damage_pool = 0;
-    }
-}
 
 // DEFINIÇÃO DE CONTROLES E INPUTS 
 var _gp = (pid == 1) ? global.p1_gamepad : global.p2_gamepad;
@@ -71,7 +26,6 @@ if (_defend_btn && (state == PLAYER_STATE.FREE)) {
 if (state == PLAYER_STATE.DEFEND && !_defend_btn) {
     state = PLAYER_STATE.FREE;
 }
-
 var _gp = (pid == 1) ? global.p1_gamepad : global.p2_gamepad;
 var _hasgp = (_gp != noone) && gamepad_is_connected(_gp);
 

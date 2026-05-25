@@ -1,17 +1,48 @@
 function assign_gamepads() {
     global.p1_gamepad = noone;
     global.p2_gamepad = noone;
+    
     var _count = 0;
     var _slots = gamepad_get_device_count();
+    
+    // Arrays para guardar o que já foi mapeado de verdade
+    var _assigned_slots = [];
+    var _assigned_descs = [];
+
     for (var _i = 0; _i < _slots; _i++) {
         if (gamepad_is_connected(_i)) {
-            if (_count == 0)      global.p1_gamepad = _i;
-            else if (_count == 1) global.p2_gamepad = _i;
-            _count++;
+            var _desc = gamepad_get_description(_i);
+            var _is_ghost = false;
+            
+            // ANTI-FANTASMA: Se o slot atual for DirectInput (>= 4), checa se 
+            // já pegamos esse mesmo controle como XInput (0-3) para não duplicar.
+            if (_i >= 4) {
+                for (var _j = 0; _j < array_length(_assigned_slots); _j++) {
+                    if (_assigned_descs[_j] == _desc && _assigned_slots[_j] < 4) {
+                        _is_ghost = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (_is_ghost) continue; // Pula o clone fantasma e vai para o próximo!
+
+            // Mapeia os jogadores reais
+            if (_count == 0) {
+                global.p1_gamepad = _i;
+                array_push(_assigned_slots, _i);
+                array_push(_assigned_descs, _desc);
+                _count++;
+            } else if (_count == 1) {
+                global.p2_gamepad = _i;
+                array_push(_assigned_slots, _i);
+                array_push(_assigned_descs, _desc);
+                _count++;
+                break; // Já achou os dois controles físicos diferentes, encerra.
+            }
         }
     }
 }
-
 function get_player_input(pid) {
     var _gp  = (pid == 1) ? global.p1_gamepad : global.p2_gamepad;
     var _has = (_gp != noone) && gamepad_is_connected(_gp);

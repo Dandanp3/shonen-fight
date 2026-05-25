@@ -95,13 +95,6 @@ attack_hit_registered = false;
 attack_sound_played   = false;
 
 take_damage = function(dmg, knockback_dir, knockback_force, knockback_vspd) {
-    // Time Stop
-    if (variable_global_exists("ts_active") && global.ts_active && id != global.za_warudo_caster) {
-        hp = max(0, hp - dmg);
-        global.ts_hit_registered = true; 
-        exit; 
-    }
-    
     if (state == PLAYER_STATE.DEAD || inv_timer > 0) exit;
 
     attack_hit_registered = false; 
@@ -133,9 +126,7 @@ take_damage = function(dmg, knockback_dir, knockback_force, knockback_vspd) {
         if (state == PLAYER_STATE.DEFEND) {
             hspd = knockback_dir * (_force / (massa * 3)); 
             vspd = 0; // Não voa para cima
-            // O estado continua sendo PLAYER_STATE.DEFEND
         } else {
-            // O jogador não está defendendo, sofre o knockdown normal
             hspd = knockback_dir * (_force / massa);
             vspd = _vspd;               
             state = PLAYER_STATE.KNOCKDOWN;
@@ -161,13 +152,7 @@ apply_attack_hit = function(_data) {
     var _base_x = x;
     var _base_y = y;
     
-    // Se o The World existe e este jogador é o dono dele, o ataque sai da posição do STAND
-    if (instance_exists(oTheWorld) && oTheWorld.owner == id) {
-        _base_x = oTheWorld.x;
-        _base_y = oTheWorld.y;
-    }
-    
-    // Calcula a Hitbox baseada na origem correta (Player ou Stand)
+    // Calcula a Hitbox baseada na origem do Player (sem o Stand)
     var _hx = _base_x + (_data.hb_x * facing);
     var _hy = _base_y + _data.hb_y;
     
